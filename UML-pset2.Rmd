@@ -1,0 +1,66 @@
+---
+title: "Problem Set 2"
+author: "Jesús Pacheco"
+date: "10/15/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#rm(list=ls())
+library(tidyverse)
+library(cluster)
+library(seriation)
+```
+
+#Computation
+###1. Distances
+```{r}
+p <- c(1,2)
+q <- c(3,4)
+
+d_manhattan <- sum(abs(p-q))
+d_canberra <- sum(abs(p-q)/(abs(p) + abs(q))) 
+d_euclidean <- (sum((p-q)^2))^.5
+c(d_manhattan, d_canberra, d_euclidean)
+```
+
+###2. Using the build-up function
+```{r}
+dist(rbind(p, q), method = "manhattan")
+dist(rbind(p, q), method = "canberra")
+dist(rbind(p, q), method = "euclidean")
+```
+I was wrong at first at computing the canberra distance, I was missing a parentheses to do the vector computations correctly. Using the build-up function helps with this. 
+
+###3. Key differences
+The three distances measure different relational attributes in the data, hence they are not comparable amongst them. The Manhattan distance sums over absolute values of all dimensions in which points are dissimilar to each other. Canberra does this in a standardized way, hence it is always smaller. The euclidean distance measures the shortest distance between this points (a straight line), hence it also produces a smaller value than the Manhattan distance.
+
+###4. Old Faithful EDA
+```{r}
+faithful %>% ggplot() + geom_point(aes(x=waiting, eruptions))
+faithful %>% summarize(Mean_waiting = mean(waiting), Mean_eruption = mean(eruptions), 
+                       Var_waiting = var(waiting), Var_eruption = var(eruptions), 
+                       corr = cor(waiting, eruptions))
+```
+From the visualization, we see that there might be some positive relation between waiting and eruption times in the Old Faithful geyser. We can also see that in the correlation coefficient between the two variables. 
+I also see that there might be potential clusters since we see two "groups" of density of observations: one in the lower left side (less than 70 minutes of waiting time and less than 3 minutes of eruptions) and the other one in the upper rigth. Furthermore, we see more variation in the data in the right-hand side of the graph. We can alredy start to guess that there might be two types of relations of eruption durations and waiting times.
+
+###5. Dissimilarity matrix
+```{r results="hide"}
+#Scaling the data
+faithful_scaled <- scale(faithful)
+dis_mat <- dist(faithful_scaled, method = "euclidean")
+```
+###6. ODI
+```{r}
+dissplot(dis_mat)
+```
+The ODI clearly displays two types of relations in the data. The darker blocks along the diagonal line suggest that there might be a good case for clusters in the data. In other words, the dissimilarities are smaller in certain parts of the distribution. 
+
+###7. The iris data
+```{r}
+iris_dm <- iris %>% select(-Species) %>% scale() %>% dist( ,method="euclidean")
+```
+
+###8. 
